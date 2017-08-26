@@ -1,16 +1,21 @@
 const request = require('supertest')
 const expect = require('expect')
+const {ObjectID} = require('mongodb')
 
 const {app} = require('../server')
 const {Todo} = require('../models/todos')
 
 const todos = [{
+  _id: new ObjectID(123),
   text: 'dummy todo no.1'
 }, {
+  _id: new ObjectID(456),
   text: 'dummy todo no.2'
 }, {
+  _id: new ObjectID(789),
   text: 'dummy todo no.3'
 }, {
+  _id: new ObjectID(101112),
   text: 'dummy todo no.4'
 }]
 
@@ -65,6 +70,35 @@ describe('GET /todos app', (done) => {
       .expect(200)
       .expect((res) => {
         expect(res.body.todos.length).toBe(4)
+      })
+      .end(done)
+  })
+})
+
+describe('GET /todos/:id', () => {
+  it('should return todo doc', (done) => {
+    request(app)
+      .get(`/todos/${todos[0]._id.toHexString()}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(todos[0].text)
+      })
+      .end(done)
+  })
+
+  it('should return 404 if todo not found', (done) => {
+    request(app)
+      .get(`/todos/${new ObjectID().toHexString()}`)
+      .expect(404)
+      .end(done)
+  })
+
+  it('should return 404 for invalid id', (done) => {
+    request(app)
+      .get('/todos/123')
+      .expect(404)
+      .expect((res) => {
+        expect(res.body).toInclude({errorDesc: 'The entered id is not correct!'})
       })
       .end(done)
   })

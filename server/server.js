@@ -29,8 +29,8 @@ app.get('/todos', (req, res) => {
 app.get('/todos/:id', (req, res) => {
   const id = req.params.id
   if (!ObjectID.isValid(id)) return res.status(404).send({errorDesc: 'The entered id is not correct!'})
-  Todo.findById(id).then((result) => {
-    if (result) return res.send(result)
+  Todo.findById(id).then((todo) => {
+    if (todo) return res.send({todo})
     return res.status(404).send({})
   }, (e) => res.status(400).send({}))
 })
