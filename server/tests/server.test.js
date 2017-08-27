@@ -13,7 +13,9 @@ const todos = [{
   text: 'dummy todo no.2'
 }, {
   _id: new ObjectID(789),
-  text: 'dummy todo no.3'
+  text: 'dummy todo no.3',
+  completed: true,
+  completedAt: new Date().getTime()
 }, {
   _id: new ObjectID(101112),
   text: 'dummy todo no.4'
@@ -139,5 +141,37 @@ describe('DELETE /todos/:id', () => {
           expect(res.body).toInclude({errorDesc: 'The entered id is not correct!'})
         })
         .end(done)
+  })
+})
+
+describe('PATCH /todos/:id', () => {
+  it('should update the todo', (done) => {
+    const id = todos[0]._id.toHexString()
+    const testText = 'Updated with test'
+    request(app)
+      .patch(`/todos/${id}`)
+      .send({text: testText, completed: true})
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo).toInclude({text: testText})
+        expect(res.body.todo.completed).toBe(true)
+        expect(res.body.todo.completedAt).toBeA('number')
+      })
+      .end(done)
+  })
+
+  it('should clear completedAt when todo is not completed', (done) => {
+    const id = todos[3]._id.toHexString()
+    const text = 'random text'
+    request(app)
+      .patch(`/todos/${id}`)
+      .send({completed: false, text})
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo).toInclude({text})
+        expect(res.body.todo.completed).toBe(false)
+        expect(res.body.todo.completedAt).toNotExist()
+      })
+      .end(done)
   })
 })
