@@ -42,7 +42,7 @@ app.delete('/todos/:id', (req, res) => {
   if (!ObjectID.isValid(id)) return res.status(404).send({errorDesc: 'The entered id is not correct!'})
   Todo.findByIdAndRemove(id).then((todo) => {
     if (todo) return res.send({todo})
-    return res.status(404).send({})
+    res.status(404).send({})
   }).catch((e) => res.status(400).send({}))
 })
 
