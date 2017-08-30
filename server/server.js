@@ -4,6 +4,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const _ = require('lodash')
 const {ObjectID} = require('mongodb')
+const bcrypt = require('bcryptjs')
 
 const {mongoose} = require('./db/mongoose')
 const {User} = require('./models/users')
@@ -66,7 +67,7 @@ app.patch('/todos/:id', (req, res) => {
   }).catch((e) => res.status(400).send({}))
 })
 
-// /USERS
+// POST /users
 app.post('/users', (req, res) => {
   const body = _.pick(req.body, ['email', 'password'])
   const user = new User(body)
@@ -76,6 +77,18 @@ app.post('/users', (req, res) => {
     res.header('x-auth', token).send(user)
   }).catch((e) => {
     if (e) res.status(400).send(e)
+  })
+})
+
+// POST /users/login
+app.post('/users/login', (req, res) => {
+  const body = _.pick(req.body, ['email', 'password'])
+  User.findByCredentials(body.email, body.password).then((user) => {
+    return user.generateAuthToken().then((token) => {
+      res.header('x-auth', token).send(user)
+    })
+  }).catch((e) => {
+    res.status(400).send()
   })
 })
 
