@@ -18,30 +18,38 @@ const users = [{
 }, {
   _id: user2ID,
   email: 'bairei2@mail.com',
-  password: 'user2pass'
+  password: 'user2pass',
+  tokens: [{
+    access: 'auth',
+    token: jwt.sign({_id: user2ID, access: 'auth'}, 'abc123').toString()
+  }]
 }]
 
 const todos = [{
   _id: new ObjectID(123),
-  text: 'dummy todo no.1'
+  text: 'dummy todo no.1',
+  _creator: user1ID
 }, {
   _id: new ObjectID(456),
-  text: 'dummy todo no.2'
+  text: 'dummy todo no.2',
+  _creator: user2ID
 }, {
   _id: new ObjectID(789),
   text: 'dummy todo no.3',
   completed: true,
-  completedAt: new Date().getTime()
+  completedAt: new Date().getTime(),
+  _creator: user1ID
 }, {
   _id: new ObjectID(101112),
-  text: 'dummy todo no.4'
+  text: 'dummy todo no.4',
+  _creator: user2ID
 }]
 
-const populateTodos = ((done) => {
+const populateTodos = (done) => {
   Todo.remove().then(() => {
     return Todo.insertMany(todos)
   }).then(() => done())
-})
+}
 
 const populateUsers = ((done) => {
   User.remove().then(() => {
@@ -52,5 +60,5 @@ const populateUsers = ((done) => {
 })
 
 module.exports = {
-  todos, populateTodos, users, populateUsers
+  todos, populateTodos, users, populateUsers, user1ID
 }
